@@ -205,7 +205,7 @@
         };
 
         const rephraseContent = async (title, content) => {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
             const payload = {
                 contents: [{
                     parts: [{ text: `Act as a book critic and rephrase the following text to make it more unique and original. Do not add any new facts, only rephrase. Return only the rephrased text.\nTitle: "${title}"\nContent: "${content}"` }]
