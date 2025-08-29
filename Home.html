@@ -34,7 +34,7 @@
             color: var(--bg-color);
         }
         .container {
-            min-height: calc(100vh - 10rem); /* 10rem is a bit more than header + footer */
+            min-height: calc(100vh - 10rem);
         }
         h1, h2, h3 {
             font-family: 'Playfair Display', serif;
@@ -92,7 +92,7 @@
             <nav class="space-x-4 flex items-center">
                 <button id="home-nav" class="text-white hover:text-gray-300 transition-colors">Home</button>
                 <button id="blog-nav" class="text-white hover:text-gray-300 transition-colors">Blog</button>
-                <button id="profile-nav" class="text-white hover:text-gray-300 transition-colors">Profile</button>
+                <button id="profile-nav" class="text-white hover:text-gray-300 transition-colors hidden">Profile</button>
                 <button id="logout-btn" class="text-white hover:text-gray-300 transition-colors hidden">Log Out</button>
             </nav>
         </div>
@@ -101,17 +101,20 @@
     <main class="container flex-grow p-6">
 
         <!-- Login/Sign Up Page -->
-        <section id="auth-page" class="page-content active-page max-w-lg mx-auto p-8 card shadow-xl">
-            <h2 class="text-3xl font-bold text-center text-primary-color mb-6">Welcome to BookHive</h2>
-            <form id="auth-form" class="space-y-4">
-                <input type="email" id="auth-email" placeholder="Email" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
-                <input type="password" id="auth-password" placeholder="Password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
-                <button type="submit" id="auth-btn" class="w-full btn-primary">Sign In</button>
-                <p class="text-center text-sm text-gray-600">
-                    Don't have an account? <span id="toggle-auth" class="text-accent-color cursor-pointer hover:underline">Sign up here</span>
-                </p>
-                <p id="auth-error-msg" class="text-red-500 text-sm text-center"></p>
-            </form>
+        <section id="auth-page" class="page-content active-page flex items-center justify-center">
+            <div class="max-w-lg mx-auto p-8 card shadow-xl text-center">
+                <h2 class="text-3xl font-bold text-primary-color mb-6">Welcome to BookHive</h2>
+                <p class="mb-4 text-gray-700">Sign in to share your thoughts and manage your posts.</p>
+                <form id="auth-form" class="space-y-4">
+                    <input type="text" id="auth-username" placeholder="Username" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                    <input type="password" id="auth-password" placeholder="Password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                    <button type="submit" id="auth-btn" class="w-full btn-primary">Sign In</button>
+                    <p class="text-center text-sm text-gray-600">
+                        Don't have an account? <span id="toggle-auth" class="text-accent-color cursor-pointer hover:underline">Sign up here</span>
+                    </p>
+                    <p id="auth-error-msg" class="text-red-500 text-sm text-center"></p>
+                </form>
+            </div>
         </section>
 
         <!-- Home Page -->
@@ -135,7 +138,7 @@
                     <label for="post-content" class="block text-sm font-medium text-gray-700">What did you learn?</label>
                     <textarea id="post-content" rows="6" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition"></textarea>
                 </div>
-                <button type="submit" id="publish-btn" class="w-full btn-primary flex items-center justify-center space-x-2" disabled>
+                <button type="submit" id="publish-btn" class="w-full btn-primary flex items-center justify-center space-x-2">
                     <span id="publish-text">Publish Post</span>
                     <div id="publish-loader" class="loader hidden"></div>
                 </button>
@@ -143,7 +146,7 @@
                 <p id="post-success-msg" class="text-green-500 text-sm text-center"></p>
             </form>
         </section>
-
+        
         <!-- Profile Page -->
         <section id="profile-page" class="page-content hidden max-w-6xl mx-auto p-8">
             <div class="card p-8 mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
@@ -151,8 +154,9 @@
                     <img id="profile-photo" src="https://placehold.co/150x150/f7f3e9/4b3832?text=User" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-accent-color shadow-md">
                 </div>
                 <div class="flex-grow text-center sm:text-left">
-                    <h2 id="profile-email" class="text-3xl font-bold text-primary-color"></h2>
-                    <p class="text-gray-500 mb-4">User ID: <span id="profile-user-id" class="text-sm font-mono text-gray-600"></span></p>
+                    <h2 id="profile-name" class="text-3xl font-bold text-primary-color"></h2>
+                    <p id="profile-email" class="text-gray-500 mb-4"></p>
+                    <p class="text-gray-500 text-sm font-mono mb-2">User ID: <span id="profile-user-id"></span></p>
                     <form id="update-profile-form" class="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <input type="url" id="photo-url-input" placeholder="Paste photo URL here..." class="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
                         <button type="submit" class="btn-primary mt-2 sm:mt-0">Update Photo</button>
@@ -168,29 +172,6 @@
             <p id="no-my-posts-msg" class="text-center text-gray-500 mt-10 hidden">You haven't created any posts yet. Go to the Blog page to share your thoughts!</p>
         </section>
         
-        <!-- Post Edit Modal/Form (Hidden by default) -->
-        <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-            <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg mx-auto">
-                <h3 class="text-2xl font-bold text-primary-color mb-4">Edit Post</h3>
-                <form id="edit-post-form" class="space-y-4">
-                    <input type="hidden" id="edit-post-id">
-                    <div>
-                        <label for="edit-title" class="block text-sm font-medium text-gray-700">Book Title</label>
-                        <input type="text" id="edit-title" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
-                    </div>
-                    <div>
-                        <label for="edit-content" class="block text-sm font-medium text-gray-700">Post Content</label>
-                        <textarea id="edit-content" rows="6" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition"></textarea>
-                    </div>
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" id="cancel-edit-btn" class="btn-primary bg-gray-400 hover:bg-gray-500">Cancel</button>
-                        <button type="submit" class="btn-primary">Save Changes</button>
-                    </div>
-                </form>
-                <p id="edit-error-msg" class="text-red-500 text-sm text-center mt-2"></p>
-            </div>
-        </div>
-
     </main>
 
     <footer class="footer p-4 text-center mt-auto">
@@ -200,8 +181,8 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables provided by the canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -211,24 +192,23 @@
         // --- Firebase Initialization & Globals ---
         let app, db, auth;
         let userId = null;
-        let isAdmin = false;
+        let userName = '';
+        let userPhoto = '';
+        let isLogin = true;
 
         const authForm = document.getElementById('auth-form');
-        const authEmailInput = document.getElementById('auth-email');
+        const authUsernameInput = document.getElementById('auth-username');
         const authPasswordInput = document.getElementById('auth-password');
         const authBtn = document.getElementById('auth-btn');
         const toggleAuthBtn = document.getElementById('toggle-auth');
         const authErrorMsg = document.getElementById('auth-error-msg');
         const logoutBtn = document.getElementById('logout-btn');
-        const publishBtn = document.getElementById('publish-btn');
 
         const navLinks = {
             'home-nav': 'home-page',
             'blog-nav': 'blog-page',
-            'profile-nav': 'profile-page',
+            'profile-nav': 'profile-page'
         };
-
-        let isLogin = true;
         const badWords = ['unhealthy', 'swear', 'badword', 'toxic', 'idiot', 'damn', 'fool', 'stupid', 'hate'];
 
         const initFirebase = async () => {
@@ -237,6 +217,7 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
 
+                // Use the provided auth token for initial sign-in
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
@@ -246,28 +227,34 @@
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        document.getElementById('auth-page').classList.add('hidden');
-                        document.getElementById('logout-btn').classList.remove('hidden');
-                        
-                        // Check for admin status
-                        const adminDocRef = doc(db, `artifacts/${appId}/public/data/adminUsers`, userId);
-                        const adminDocSnap = await getDoc(adminDocRef);
-                        isAdmin = adminDocSnap.exists();
+                        // Fetch the username from the profile document
+                        const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'info');
+                        const userDoc = await getDoc(userDocRef);
+                        if(userDoc.exists()) {
+                            userName = userDoc.data().name;
+                            userPhoto = userDoc.data().photoUrl || '';
+                        } else {
+                            userName = authUsernameInput.value || 'Guest';
+                            await setDoc(userDocRef, { name: userName, photoUrl: '', createdAt: new Date() });
+                        }
 
+                        document.getElementById('profile-nav').classList.remove('hidden');
+                        document.getElementById('logout-btn').classList.remove('hidden');
+                        document.getElementById('auth-page').classList.add('hidden');
                         showPage('home-page');
                         setupRealtimeListeners(); 
                     } else {
                         userId = null;
-                        isAdmin = false;
-                        document.getElementById('auth-page').classList.remove('hidden');
+                        userName = '';
+                        document.getElementById('profile-nav').classList.add('hidden');
                         document.getElementById('logout-btn').classList.add('hidden');
+                        document.getElementById('auth-page').classList.remove('hidden');
                         showPage('auth-page');
                     }
                 });
 
             } catch (error) {
-                console.error("Firebase initialization or authentication failed: ", error);
-                authErrorMsg.textContent = "Failed to connect. Please try again.";
+                console.error("Firebase initialization failed: ", error);
             }
         };
 
@@ -275,8 +262,7 @@
             const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
             onSnapshot(postsColRef, (snapshot) => {
                 const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Sort by likes, then by creation date for "top" posts
-                const sortedPosts = posts.sort((a, b) => b.likes - a.likes || new Date(b.createdAt) - new Date(a.createdAt));
+                const sortedPosts = posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 renderPosts(sortedPosts);
             });
 
@@ -292,17 +278,11 @@
                 onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const profileData = docSnap.data();
-                        document.getElementById('profile-email').textContent = profileData.email;
+                        document.getElementById('profile-name').textContent = profileData.name;
                         document.getElementById('profile-user-id').textContent = userId;
                         if (profileData.photoUrl) {
                             document.getElementById('profile-photo').src = profileData.photoUrl;
                         }
-                    } else {
-                        setDoc(userDocRef, {
-                            email: auth.currentUser.email,
-                            photoUrl: '',
-                            createdAt: new Date()
-                        });
                     }
                 });
             }
@@ -328,27 +308,42 @@
 
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = authEmailInput.value;
+            const username = authUsernameInput.value;
             const password = authPasswordInput.value;
             authErrorMsg.textContent = '';
+            
+            // Firebase Auth requires an email format. We will create one internally.
+            const email = `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@bookhive.com`;
+
             try {
                 if (isLogin) {
                     await signInWithEmailAndPassword(auth, email, password);
                 } else {
+                    const usernamesRef = collection(db, `artifacts/${appId}/public/data/usernames`);
+                    const q = query(usernamesRef, where('name', '==', username));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        authErrorMsg.textContent = "This username is already taken. Please choose another.";
+                        return;
+                    }
+
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const userDocRef = doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`, 'info');
-                    await setDoc(userDocRef, { email: email, photoUrl: '', createdAt: new Date() });
+                    await setDoc(userDocRef, { name: username, photoUrl: '', createdAt: new Date() });
+                    
+                    // Store the unique username for future checks
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/usernames`, userCredential.user.uid), { name: username });
                 }
             } catch (error) {
                 console.error(error);
-                authErrorMsg.textContent = error.message.replace('Firebase: ', '');
+                authErrorMsg.textContent = "Authentication failed. Please check your username and password.";
             }
         });
 
         logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                showPage('auth-page');
             } catch (error) {
                 console.error("Logout failed:", error);
             }
@@ -361,7 +356,6 @@
                     showPage(navLinks[navId]);
                 } else {
                     showPage('auth-page');
-                    authErrorMsg.textContent = 'Please sign in to access this page.';
                 }
             });
         });
@@ -397,7 +391,7 @@
                 return { title: finalTitle, content: finalContent };
             }
 
-            return { title, content }; // Fallback to original if rephrasing fails
+            return { title, content };
         };
 
         const createPostForm = document.getElementById('create-post-form');
@@ -409,6 +403,13 @@
             const postSuccessMsg = document.getElementById('post-success-msg');
             postErrorMsg.textContent = '';
             postSuccessMsg.textContent = '';
+            const publishBtn = document.getElementById('publish-btn');
+
+            if (!userId) {
+                postErrorMsg.textContent = 'You must be signed in to post.';
+                return;
+            }
+
             publishBtn.disabled = true;
             document.getElementById('publish-loader').classList.remove('hidden');
 
@@ -420,23 +421,25 @@
             }
 
             try {
-                // Rephrase content before submission
                 const rephrased = await rephraseContent(title, content);
-
-                const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
-                const myPostsColRef = collection(db, `artifacts/${appId}/users/${userId}/myPosts`);
 
                 const newPost = {
                     title: rephrased.title,
                     content: rephrased.content,
-                    authorId: userId,
-                    authorEmail: auth.currentUser.email,
                     likes: 0,
+                    authorId: userId,
+                    authorName: userName,
+                    authorPhoto: userPhoto,
                     createdAt: new Date().toISOString()
                 };
 
-                await addDoc(postsColRef, newPost);
-                await addDoc(myPostsColRef, newPost);
+                // Add to public collection
+                const publicPostsRef = collection(db, `artifacts/${appId}/public/data/posts`);
+                const docRef = await addDoc(publicPostsRef, newPost);
+
+                // Add to user's private collection with the same ID
+                const myPostsRef = collection(db, `artifacts/${appId}/users/${userId}/myPosts`);
+                await setDoc(doc(myPostsRef, docRef.id), newPost);
 
                 postSuccessMsg.textContent = 'Post published successfully!';
                 createPostForm.reset();
@@ -466,7 +469,10 @@
                     <div>
                         <h3 class="text-2xl font-bold text-primary-color mb-2">${post.title}</h3>
                         <p class="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">${post.content}</p>
-                        <p class="text-gray-500 text-sm font-light mb-2">by ${post.authorEmail}</p>
+                        <div class="flex items-center space-x-2 text-gray-500 text-sm font-light">
+                            <img src="${post.authorPhoto || 'https://placehold.co/24x24/f7f3e9/4b3832?text=U'}" alt="${post.authorName}" class="w-6 h-6 rounded-full">
+                            <span>by ${post.authorName}</span>
+                        </div>
                         <p class="text-gray-500 text-sm font-light">Posted on: ${new Date(post.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div class="flex items-center justify-end mt-4 space-x-2">
@@ -476,12 +482,6 @@
                             </svg>
                             <span class="text-gray-700">${post.likes || 0}</span>
                         </button>
-                        ${isAdmin ? `<button class="edit-btn text-gray-500 hover:text-gray-800 p-2 rounded-full transition" data-post-id="${post.id}" data-title="${post.title}" data-content="${post.content}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
-                            </svg>
-                        </button>` : ''}
                     </div>
                 `;
                 container.appendChild(postElement);
@@ -502,21 +502,6 @@
                     }
                 });
             });
-
-            if (isAdmin) {
-                document.querySelectorAll('.edit-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const postId = e.currentTarget.dataset.postId;
-                        const title = e.currentTarget.dataset.title;
-                        const content = e.currentTarget.dataset.content;
-                        
-                        document.getElementById('edit-post-id').value = postId;
-                        document.getElementById('edit-title').value = title;
-                        document.getElementById('edit-content').value = content;
-                        document.getElementById('edit-modal').classList.remove('hidden');
-                    });
-                });
-            }
         };
 
         const renderMyPosts = (posts) => {
@@ -586,34 +571,6 @@
                 photoUpdateMsg.textContent = "Failed to update photo.";
             }
         });
-
-        // --- Admin Edit Post Logic ---
-        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-            document.getElementById('edit-modal').classList.add('hidden');
-        });
-
-        document.getElementById('edit-post-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const postId = document.getElementById('edit-post-id').value;
-            const title = document.getElementById('edit-title').value;
-            const content = document.getElementById('edit-content').value;
-            const editErrorMsg = document.getElementById('edit-error-msg');
-            editErrorMsg.textContent = '';
-            
-            try {
-                const postsColRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                await updateDoc(postsColRef, {
-                    title: title,
-                    content: content
-                });
-
-                document.getElementById('edit-modal').classList.add('hidden');
-            } catch (error) {
-                console.error("Error updating post:", error);
-                editErrorMsg.textContent = "Failed to update post. Please try again.";
-            }
-        });
-
 
         // Initial setup
         initFirebase();
