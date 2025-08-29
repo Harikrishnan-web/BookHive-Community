@@ -92,33 +92,13 @@
             <nav class="space-x-4 flex items-center">
                 <button id="home-nav" class="text-white hover:text-gray-300 transition-colors">Home</button>
                 <button id="blog-nav" class="text-white hover:text-gray-300 transition-colors">Blog</button>
-                <button id="profile-nav" class="text-white hover:text-gray-300 transition-colors hidden">Profile</button>
-                <button id="logout-btn" class="text-white hover:text-gray-300 transition-colors hidden">Log Out</button>
             </nav>
         </div>
     </header>
 
     <main class="container flex-grow p-6">
-
-        <!-- Login/Sign Up Page -->
-        <section id="auth-page" class="page-content active-page flex items-center justify-center">
-            <div class="max-w-lg mx-auto p-8 card shadow-xl text-center">
-                <h2 class="text-3xl font-bold text-primary-color mb-6">Welcome to BookHive</h2>
-                <p class="mb-4 text-gray-700">Sign in to share your thoughts and manage your posts.</p>
-                <form id="auth-form" class="space-y-4">
-                    <input type="text" id="auth-username" placeholder="Username" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
-                    <input type="password" id="auth-password" placeholder="Password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
-                    <button type="submit" id="auth-btn" class="w-full btn-primary">Sign In</button>
-                    <p class="text-center text-sm text-gray-600">
-                        Don't have an account? <span id="toggle-auth" class="text-accent-color cursor-pointer hover:underline">Sign up here</span>
-                    </p>
-                    <p id="auth-error-msg" class="text-red-500 text-sm text-center"></p>
-                </form>
-            </div>
-        </section>
-
         <!-- Home Page -->
-        <section id="home-page" class="page-content hidden max-w-6xl mx-auto">
+        <section id="home-page" class="page-content active-page max-w-6xl mx-auto">
             <h2 class="text-4xl font-bold text-center text-primary-color mb-8">Top Posts from the Community</h2>
             <div id="posts-container" class="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 <!-- Posts will be dynamically added here -->
@@ -130,6 +110,10 @@
         <section id="blog-page" class="page-content hidden max-w-2xl mx-auto p-8 card shadow-xl">
             <h2 class="text-3xl font-bold text-center text-primary-color mb-6">Share Your Thoughts</h2>
             <form id="create-post-form" class="space-y-6">
+                <div>
+                    <label for="author-name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                    <input type="text" id="author-name" placeholder="Enter your name" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                </div>
                 <div>
                     <label for="post-title" class="block text-sm font-medium text-gray-700">Book Title</label>
                     <input type="text" id="post-title" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
@@ -147,31 +131,6 @@
             </form>
         </section>
         
-        <!-- Profile Page -->
-        <section id="profile-page" class="page-content hidden max-w-6xl mx-auto p-8">
-            <div class="card p-8 mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                <div class="flex-shrink-0">
-                    <img id="profile-photo" src="https://placehold.co/150x150/f7f3e9/4b3832?text=User" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-accent-color shadow-md">
-                </div>
-                <div class="flex-grow text-center sm:text-left">
-                    <h2 id="profile-name" class="text-3xl font-bold text-primary-color"></h2>
-                    <p id="profile-email" class="text-gray-500 mb-4"></p>
-                    <p class="text-gray-500 text-sm font-mono mb-2">User ID: <span id="profile-user-id"></span></p>
-                    <form id="update-profile-form" class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <input type="url" id="photo-url-input" placeholder="Paste photo URL here..." class="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
-                        <button type="submit" class="btn-primary mt-2 sm:mt-0">Update Photo</button>
-                    </form>
-                    <p id="photo-update-msg" class="text-sm text-green-500 mt-2"></p>
-                </div>
-            </div>
-
-            <h3 class="text-2xl font-bold text-primary-color mb-6 text-center sm:text-left">My Posts</h3>
-            <div id="my-posts-container" class="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                <!-- User's posts will be dynamically added here -->
-            </div>
-            <p id="no-my-posts-msg" class="text-center text-gray-500 mt-10 hidden">You haven't created any posts yet. Go to the Blog page to share your thoughts!</p>
-        </section>
-        
     </main>
 
     <footer class="footer p-4 text-center mt-auto">
@@ -181,78 +140,21 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, addDoc, onSnapshot, collection, getDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables provided by the canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // --- Firebase Initialization & Globals ---
-        let app, db, auth;
-        let userId = null;
-        let userName = '';
-        let userPhoto = '';
-        let isLogin = true;
-
-        const authForm = document.getElementById('auth-form');
-        const authUsernameInput = document.getElementById('auth-username');
-        const authPasswordInput = document.getElementById('auth-password');
-        const authBtn = document.getElementById('auth-btn');
-        const toggleAuthBtn = document.getElementById('toggle-auth');
-        const authErrorMsg = document.getElementById('auth-error-msg');
-        const logoutBtn = document.getElementById('logout-btn');
-
-        const navLinks = {
-            'home-nav': 'home-page',
-            'blog-nav': 'blog-page',
-            'profile-nav': 'profile-page'
-        };
-        const badWords = ['unhealthy', 'swear', 'badword', 'toxic', 'idiot', 'damn', 'fool', 'stupid', 'hate'];
+        let app, db;
+        const badWords = ['unhealthy', 'swear', 'badword', 'toxic', 'idiot', 'damn', 'fool', 'stupid', 'hate', 'badterm', 'badword'];
 
         const initFirebase = async () => {
             try {
                 app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
                 db = getFirestore(app);
-
-                // Use the provided auth token for initial sign-in
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        // Fetch the username from the profile document
-                        const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'info');
-                        const userDoc = await getDoc(userDocRef);
-                        if(userDoc.exists()) {
-                            userName = userDoc.data().name;
-                            userPhoto = userDoc.data().photoUrl || '';
-                        } else {
-                            userName = authUsernameInput.value || 'Guest';
-                            await setDoc(userDocRef, { name: userName, photoUrl: '', createdAt: new Date() });
-                        }
-
-                        document.getElementById('profile-nav').classList.remove('hidden');
-                        document.getElementById('logout-btn').classList.remove('hidden');
-                        document.getElementById('auth-page').classList.add('hidden');
-                        showPage('home-page');
-                        setupRealtimeListeners(); 
-                    } else {
-                        userId = null;
-                        userName = '';
-                        document.getElementById('profile-nav').classList.add('hidden');
-                        document.getElementById('logout-btn').classList.add('hidden');
-                        document.getElementById('auth-page').classList.remove('hidden');
-                        showPage('auth-page');
-                    }
-                });
-
+                setupRealtimeListeners(); 
             } catch (error) {
                 console.error("Firebase initialization failed: ", error);
             }
@@ -262,30 +164,10 @@
             const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
             onSnapshot(postsColRef, (snapshot) => {
                 const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort by creation date for "top" posts
                 const sortedPosts = posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 renderPosts(sortedPosts);
             });
-
-            if (userId) {
-                const myPostsColRef = collection(db, `artifacts/${appId}/users/${userId}/myPosts`);
-                onSnapshot(myPostsColRef, (snapshot) => {
-                    const myPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    const sortedMyPosts = myPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                    renderMyPosts(sortedMyPosts);
-                });
-
-                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'info');
-                onSnapshot(userDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const profileData = docSnap.data();
-                        document.getElementById('profile-name').textContent = profileData.name;
-                        document.getElementById('profile-user-id').textContent = userId;
-                        if (profileData.photoUrl) {
-                            document.getElementById('profile-photo').src = profileData.photoUrl;
-                        }
-                    }
-                });
-            }
         };
 
         // --- View Management ---
@@ -298,72 +180,28 @@
             document.getElementById(pageId).classList.add('active-page');
         };
 
-        // --- Authentication ---
-        toggleAuthBtn.addEventListener('click', () => {
-            isLogin = !isLogin;
-            authBtn.textContent = isLogin ? 'Sign In' : 'Sign Up';
-            toggleAuthBtn.textContent = isLogin ? 'Sign up here' : 'Sign in here';
-            authErrorMsg.textContent = '';
-        });
-
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = authUsernameInput.value;
-            const password = authPasswordInput.value;
-            authErrorMsg.textContent = '';
-            
-            // Firebase Auth requires an email format. We will create one internally.
-            const email = `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@bookhive.com`;
-
-            try {
-                if (isLogin) {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    const usernamesRef = collection(db, `artifacts/${appId}/public/data/usernames`);
-                    const q = query(usernamesRef, where('name', '==', username));
-                    const querySnapshot = await getDocs(q);
-
-                    if (!querySnapshot.empty) {
-                        authErrorMsg.textContent = "This username is already taken. Please choose another.";
-                        return;
-                    }
-
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    const userDocRef = doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`, 'info');
-                    await setDoc(userDocRef, { name: username, photoUrl: '', createdAt: new Date() });
-                    
-                    // Store the unique username for future checks
-                    await setDoc(doc(db, `artifacts/${appId}/public/data/usernames`, userCredential.user.uid), { name: username });
-                }
-            } catch (error) {
-                console.error(error);
-                authErrorMsg.textContent = "Authentication failed. Please check your username and password.";
-            }
-        });
-
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Logout failed:", error);
-            }
-        });
-
         // --- Navigation ---
-        Object.keys(navLinks).forEach(navId => {
-            document.getElementById(navId).addEventListener('click', () => {
-                if (userId) {
-                    showPage(navLinks[navId]);
-                } else {
-                    showPage('auth-page');
-                }
-            });
-        });
-
+        document.getElementById('home-nav').addEventListener('click', () => showPage('home-page'));
+        document.getElementById('blog-nav').addEventListener('click', () => showPage('blog-page'));
+        
         // --- Post Handling & Plagiarism-Free Feature ---
+        const isEnglish = (text) => {
+            const latinCharCount = (text.match(/[A-Za-z]/g) || []).length;
+            const totalCharCount = text.length;
+            // Check if at least 70% of the characters are Latin alphabet letters
+            return (latinCharCount / totalCharCount) > 0.7;
+        };
+
         const checkContent = (text) => {
             const lowerText = text.toLowerCase();
-            return !badWords.some(word => lowerText.includes(word));
+            const hasBadWords = badWords.some(word => lowerText.includes(word));
+            if (hasBadWords) {
+                return { isValid: false, message: 'Your post contains unhealthy content. Please revise it.' };
+            }
+            if (!isEnglish(text)) {
+                return { isValid: false, message: 'Your post must be in English. Please revise it.' };
+            }
+            return { isValid: true };
         };
 
         const rephraseContent = async (title, content) => {
@@ -385,18 +223,21 @@
             const rephrasedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
             
             if (rephrasedText) {
-                const [rephrasedTitle, rephrasedContent] = rephrasedText.split('\nContent: "');
-                const finalTitle = rephrasedTitle.replace('Title: "', '');
-                const finalContent = rephrasedContent.replace('"', '');
-                return { title: finalTitle, content: finalContent };
+                const parts = rephrasedText.split('\nContent: "');
+                if (parts.length === 2) {
+                    const finalTitle = parts[0].replace('Title: "', '');
+                    const finalContent = parts[1].replace('"', '');
+                    return { title: finalTitle, content: finalContent };
+                }
             }
-
-            return { title, content };
+            
+            return { title, content }; // Fallback to original if rephrasing fails
         };
 
         const createPostForm = document.getElementById('create-post-form');
         createPostForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const authorName = document.getElementById('author-name').value;
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-content').value;
             const postErrorMsg = document.getElementById('post-error-msg');
@@ -404,42 +245,32 @@
             postErrorMsg.textContent = '';
             postSuccessMsg.textContent = '';
             const publishBtn = document.getElementById('publish-btn');
-
-            if (!userId) {
-                postErrorMsg.textContent = 'You must be signed in to post.';
-                return;
-            }
-
             publishBtn.disabled = true;
             document.getElementById('publish-loader').classList.remove('hidden');
 
-            if (!checkContent(title) || !checkContent(content)) {
-                postErrorMsg.textContent = 'Your post contains unhealthy content. Please revise it.';
+            const validation = checkContent(title + ' ' + content);
+            if (!validation.isValid) {
+                postErrorMsg.textContent = validation.message;
                 publishBtn.disabled = false;
                 document.getElementById('publish-loader').classList.add('hidden');
                 return;
             }
 
             try {
+                // Rephrase content before submission
                 const rephrased = await rephraseContent(title, content);
+
+                const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
 
                 const newPost = {
                     title: rephrased.title,
                     content: rephrased.content,
                     likes: 0,
-                    authorId: userId,
-                    authorName: userName,
-                    authorPhoto: userPhoto,
+                    authorName: authorName,
                     createdAt: new Date().toISOString()
                 };
 
-                // Add to public collection
-                const publicPostsRef = collection(db, `artifacts/${appId}/public/data/posts`);
-                const docRef = await addDoc(publicPostsRef, newPost);
-
-                // Add to user's private collection with the same ID
-                const myPostsRef = collection(db, `artifacts/${appId}/users/${userId}/myPosts`);
-                await setDoc(doc(myPostsRef, docRef.id), newPost);
+                await addDoc(postsColRef, newPost);
 
                 postSuccessMsg.textContent = 'Post published successfully!';
                 createPostForm.reset();
@@ -470,8 +301,7 @@
                         <h3 class="text-2xl font-bold text-primary-color mb-2">${post.title}</h3>
                         <p class="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">${post.content}</p>
                         <div class="flex items-center space-x-2 text-gray-500 text-sm font-light">
-                            <img src="${post.authorPhoto || 'https://placehold.co/24x24/f7f3e9/4b3832?text=U'}" alt="${post.authorName}" class="w-6 h-6 rounded-full">
-                            <span>by ${post.authorName}</span>
+                            <span>by ${post.authorName || 'Anonymous'}</span>
                         </div>
                         <p class="text-gray-500 text-sm font-light">Posted on: ${new Date(post.createdAt).toLocaleDateString()}</p>
                     </div>
@@ -503,74 +333,6 @@
                 });
             });
         };
-
-        const renderMyPosts = (posts) => {
-            const container = document.getElementById('my-posts-container');
-            container.innerHTML = '';
-            if (posts.length === 0) {
-                document.getElementById('no-my-posts-msg').classList.remove('hidden');
-            } else {
-                document.getElementById('no-my-posts-msg').classList.add('hidden');
-            }
-
-            posts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'card p-6 flex flex-col justify-between';
-                postElement.innerHTML = `
-                    <div>
-                        <h3 class="text-2xl font-bold text-primary-color mb-2">${post.title}</h3>
-                        <p class="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">${post.content}</p>
-                        <p class="text-gray-500 text-sm font-light">Posted on: ${new Date(post.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <div class="flex items-center justify-end mt-4">
-                        <button class="delete-btn text-red-500 hover:text-red-700 p-2 rounded-full transition" data-post-id="${post.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(postElement);
-            });
-
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const postId = e.currentTarget.dataset.postId;
-                    const publicPostDocRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                    const myPostDocRef = doc(db, `artifacts/${appId}/users/${userId}/myPosts`, postId);
-                    try {
-                        await deleteDoc(publicPostDocRef);
-                        await deleteDoc(myPostDocRef);
-                    } catch (error) {
-                        console.error("Error deleting document: ", error);
-                    }
-                });
-            });
-        };
-
-        // --- Profile Handling ---
-        const updateProfileForm = document.getElementById('update-profile-form');
-        updateProfileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const photoUrl = document.getElementById('photo-url-input').value;
-            const photoUpdateMsg = document.getElementById('photo-update-msg');
-            photoUpdateMsg.textContent = '';
-
-            if (!userId) {
-                photoUpdateMsg.textContent = "Please log in to update your profile.";
-                return;
-            }
-
-            try {
-                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'info');
-                await updateDoc(userDocRef, { photoUrl: photoUrl });
-                photoUpdateMsg.textContent = "Profile photo updated successfully!";
-                document.getElementById('profile-photo').src = photoUrl;
-            } catch (error) {
-                console.error("Error updating profile: ", error);
-                photoUpdateMsg.textContent = "Failed to update photo.";
-            }
-        });
 
         // Initial setup
         initFirebase();
