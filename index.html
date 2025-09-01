@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHive</title>
+    <!-- Google Fonts for a bookish theme -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #f7f3e9;
+            --primary-color: #4b3832;
+            --accent-color: #b08d57;
+            --text-color: #333;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-heavy: rgba(0, 0, 0, 0.2);
+        }
+        body {
+            font-family: 'Merriweather', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .header {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 4px 6px -1px var(--shadow-light), 0 2px 4px -1px var(--shadow-light);
+        }
+        .footer {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+        .container {
+            min-height: calc(100vh - 10rem);
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px var(--shadow-light), 0 4px 6px -2px var(--shadow-light);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px var(--shadow-heavy), 0 10px 10px -5px var(--shadow-light);
+        }
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #a07e4d;
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            background-color: #d1b897;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .page-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .active-page {
+            display: block;
+        }
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="header p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <h1 class="text-4xl font-bold tracking-tight text-white">BookHive</h1>
+            <nav id="main-nav" class="space-x-4 flex items-center hidden">
+                <button id="home-nav" class="text-white hover:text-gray-300 transition-colors">Home</button>
+                <button id="blog-nav" class="text-white hover:text-gray-300 transition-colors">Blog</button>
+                <button id="profile-nav" class="text-white hover:text-gray-300 transition-colors">Profile</button>
+                <button id="logout-nav" class="text-white hover:text-gray-300 transition-colors">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow p-6 flex flex-col items-center">
+        <!-- Auth Page -->
+        <section id="auth-page" class="page-content active-page max-w-md w-full p-8 card text-center shadow-xl">
+            <h2 class="text-3xl font-bold text-primary-color mb-6">Welcome to BookHive</h2>
+            <div id="auth-forms" class="space-y-6">
+                <form id="login-form" class="space-y-4">
+                    <input type="text" id="login-username" placeholder="Username" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                    <input type="password" id="login-password" placeholder="Password" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                    <button type="submit" class="w-full btn-primary">Sign In</button>
+                </form>
+                <button id="show-signup" class="text-sm text-accent-color hover:underline transition">Don't have an account? Sign Up</button>
+                <form id="signup-form" class="space-y-4 hidden">
+                    <input type="text" id="signup-username" placeholder="Choose a Username" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                    <input type="password" id="signup-password" placeholder="Create a Password" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                    <button type="submit" class="w-full btn-primary">Sign Up</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Home Page -->
+        <section id="home-page" class="page-content hidden max-w-6xl w-full mx-auto">
+            <h2 class="text-4xl font-bold text-center text-primary-color mb-8">Top Posts from the Community</h2>
+            <div id="posts-container" class="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Posts will be dynamically added here -->
+            </div>
+            <p id="no-posts-msg" class="text-center text-gray-500 mt-10 hidden">No posts have been shared yet. Be the first to post!</p>
+        </section>
+
+        <!-- Blog Page (Create New Post) -->
+        <section id="blog-page" class="page-content hidden max-w-2xl w-full mx-auto p-8 card shadow-xl">
+            <h2 class="text-3xl font-bold text-center text-primary-color mb-6">Share Your Thoughts</h2>
+            <form id="create-post-form" class="space-y-6">
+                <div>
+                    <label for="post-title" class="block text-sm font-medium text-gray-700">Book Title</label>
+                    <input type="text" id="post-title" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition">
+                </div>
+                <div>
+                    <label for="post-content" class="block text-sm font-medium text-gray-700">What did you learn?</label>
+                    <textarea id="post-content" rows="6" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-color transition"></textarea>
+                </div>
+                <button type="submit" id="publish-btn" class="w-full btn-primary flex items-center justify-center space-x-2">
+                    <span id="publish-text">Publish Post</span>
+                    <div id="publish-loader" class="loader hidden"></div>
+                </button>
+            </form>
+        </section>
+
+        <!-- Profile Page -->
+        <section id="profile-page" class="page-content hidden max-w-4xl w-full mx-auto p-8 card shadow-xl">
+            <div class="flex flex-col items-center mb-6">
+                <img id="profile-photo" src="https://placehold.co/150x150/b08d57/fff?text=Photo" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover border-4 border-accent-color mb-4">
+                <h2 id="profile-username" class="text-4xl font-bold text-primary-color"></h2>
+                <button id="upload-photo-btn" class="mt-4 text-sm text-accent-color hover:underline transition">Upload Photo</button>
+                <div id="upload-photo-modal-content" class="hidden mt-2">
+                    <input type="url" id="photo-url-input" placeholder="Enter image URL" class="px-4 py-2 border rounded-md">
+                    <button id="save-photo-btn" class="btn-primary ml-2 px-4 py-2">Save</button>
+                </div>
+            </div>
+            
+            <h3 class="text-3xl font-bold text-center text-primary-color mb-6">Your Posts</h3>
+            <div id="my-posts-container" class="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                <!-- My posts will be dynamically added here -->
+            </div>
+            <p id="no-my-posts-msg" class="text-center text-gray-500 mt-10 hidden">You haven't posted anything yet. Go to the Blog page to share your thoughts!</p>
+        </section>
+    </main>
+
+    <footer class="footer p-4 text-center mt-auto">
+        <p class="text-sm">&copy; A webpage Made and created by Harikrishnan from RIT</p>
+    </footer>
+
+    <!-- Modal for general messages -->
+    <div id="message-modal" class="modal fixed inset-0 flex items-center justify-center z-[100] modal-overlay hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
+            <p id="modal-message" class="text-lg mb-4"></p>
+            <button id="modal-close-btn" class="btn-primary px-6 py-2">OK</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, onSnapshot, collection, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // --- Firebase Initialization & Globals ---
+        let app, db, auth, userId;
+        const badWords = ['unhealthy', 'swear', 'badword', 'toxic', 'idiot', 'damn', 'fool', 'stupid', 'hate', 'badterm', 'badword'];
+
+        const initFirebase = async () => {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        await getOrCreateUserProfile(userId);
+                        showPage('home-page');
+                        document.getElementById('main-nav').classList.remove('hidden');
+                    } else {
+                        userId = null;
+                        showPage('auth-page');
+                        document.getElementById('main-nav').classList.add('hidden');
+                    }
+                });
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+            } catch (error) {
+                console.error("Firebase initialization failed: ", error);
+            }
+        };
+
+        const getOrCreateUserProfile = async (uid) => {
+            const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/data/profile`);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                // Profile exists, use it
+                return userDoc.data();
+            } else {
+                // Profile does not exist, create a new one
+                const newProfile = {
+                    username: localStorage.getItem('signup-username') || 'Anonymous User',
+                    photoURL: '',
+                    createdAt: new Date().toISOString()
+                };
+                await setDoc(userDocRef, newProfile);
+                localStorage.removeItem('signup-username'); // Clean up temporary storage
+                return newProfile;
+            }
+        };
+
+        const getUserProfile = async (uid) => {
+            const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/data/profile`);
+            const userDoc = await getDoc(userDocRef);
+            return userDoc.exists() ? userDoc.data() : null;
+        };
+
+        // --- View Management ---
+        const showPage = (pageId) => {
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active-page');
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+            document.getElementById(pageId).classList.add('active-page');
+        };
+
+        const showModal = (message) => {
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('message-modal').classList.remove('hidden');
+        };
+        document.getElementById('modal-close-btn').addEventListener('click', () => {
+            document.getElementById('message-modal').classList.add('hidden');
+        });
+
+        // --- Navigation ---
+        document.getElementById('home-nav').addEventListener('click', () => {
+            showPage('home-page');
+            setupHomeListeners();
+        });
+        document.getElementById('blog-nav').addEventListener('click', () => {
+            showPage('blog-page');
+        });
+        document.getElementById('profile-nav').addEventListener('click', () => {
+            showPage('profile-page');
+            setupProfilePage();
+        });
+        document.getElementById('logout-nav').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showModal('You have been logged out.');
+            } catch (error) {
+                console.error("Error signing out:", error);
+                showModal('Failed to log out.');
+            }
+        });
+        document.getElementById('show-signup').addEventListener('click', () => {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('signup-form').classList.remove('hidden');
+        });
+
+        // --- Auth Forms ---
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            const email = `${username}@bookhive.com`; // Unique email for Firebase Auth
+
+            try {
+                const q = query(collection(db, `artifacts/${appId}/users`), where("username", "==", username));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    showModal('Username already exists. Please choose another.');
+                    return;
+                }
+
+                // Temporary storage for username to be used after creation
+                localStorage.setItem('signup-username', username);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                showModal('Account created successfully! You are now logged in.');
+            } catch (error) {
+                console.error("Signup error:", error);
+                showModal(`Signup failed: ${error.message}`);
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const email = `${username}@bookhive.com`;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                showModal('Login successful! Welcome back.');
+            } catch (error) {
+                console.error("Login error:", error);
+                showModal(`Login failed: ${error.message}`);
+            }
+        });
+
+        // --- Post Handling & Filtering ---
+        const isEnglish = (text) => {
+            const latinCharCount = (text.match(/[A-Za-z]/g) || []).length;
+            const totalCharCount = text.length;
+            // Check if at least 70% of the characters are Latin alphabet letters
+            return (latinCharCount / totalCharCount) > 0.7;
+        };
+
+        const checkContent = (text) => {
+            const lowerText = text.toLowerCase();
+            const hasBadWords = badWords.some(word => lowerText.includes(word));
+            if (hasBadWords) {
+                return { isValid: false, message: 'Your post contains unhealthy content. Please revise it.' };
+            }
+            if (!isEnglish(text)) {
+                return { isValid: false, message: 'Your post must be in English. Please revise it.' };
+            }
+            return { isValid: true };
+        };
+
+        const createPostForm = document.getElementById('create-post-form');
+        createPostForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userProfile = await getUserProfile(userId);
+            if (!userProfile) {
+                showModal('User profile not found. Please log in again.');
+                return;
+            }
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            const publishBtn = document.getElementById('publish-btn');
+            publishBtn.disabled = true;
+            document.getElementById('publish-loader').classList.remove('hidden');
+
+            const validation = checkContent(title + ' ' + content);
+            if (!validation.isValid) {
+                showModal(validation.message);
+                publishBtn.disabled = false;
+                document.getElementById('publish-loader').classList.add('hidden');
+                return;
+            }
+
+            try {
+                const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
+
+                const newPost = {
+                    title: title,
+                    content: content,
+                    authorId: userId,
+                    authorName: userProfile.username,
+                    createdAt: new Date().toISOString(),
+                    likes: 0
+                };
+
+                await addDoc(postsColRef, newPost);
+                createPostForm.reset();
+                showModal('Post published successfully!');
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showModal('Failed to publish post. Please try again.');
+            } finally {
+                publishBtn.disabled = false;
+                document.getElementById('publish-loader').classList.add('hidden');
+            }
+        });
+
+        // --- Home Page Rendering ---
+        const setupHomeListeners = () => {
+            if (!db) return;
+            const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
+            onSnapshot(postsColRef, (snapshot) => {
+                const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort by creation date for "top" posts
+                const sortedPosts = posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                renderPosts(sortedPosts, document.getElementById('posts-container'), 'no-posts-msg');
+            });
+        };
+
+        const renderPosts = (posts, container, noPostsMsgId) => {
+            container.innerHTML = '';
+            if (posts.length === 0) {
+                document.getElementById(noPostsMsgId).classList.remove('hidden');
+            } else {
+                document.getElementById(noPostsMsgId).classList.add('hidden');
+            }
+
+            posts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'card p-6 flex flex-col justify-between';
+                postElement.innerHTML = `
+                    <div>
+                        <h3 class="text-2xl font-bold text-primary-color mb-2">${post.title}</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">${post.content}</p>
+                        <div class="flex items-center space-x-2 text-gray-500 text-sm font-light">
+                            <span>by ${post.authorName || 'Anonymous'}</span>
+                        </div>
+                        <p class="text-gray-500 text-sm font-light">Posted on: ${new Date(post.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="flex items-center justify-end mt-4 space-x-2">
+                        <button class="like-btn p-2 rounded-full hover:bg-gray-100 flex items-center space-x-1" data-post-id="${post.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">${post.likes || 0}</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(postElement);
+            });
+
+            document.querySelectorAll('.like-btn').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const postId = e.currentTarget.dataset.postId;
+                    const postDocRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                    try {
+                        const postDoc = await getDoc(postDocRef);
+                        if (postDoc.exists()) {
+                            const currentLikes = postDoc.data().likes || 0;
+                            await updateDoc(postDocRef, { likes: currentLikes + 1 });
+                        }
+                    } catch (error) {
+                        console.error("Error liking post:", error);
+                    }
+                });
+            });
+        };
+
+        // --- Profile Page Handling ---
+        const setupProfilePage = async () => {
+            const userProfile = await getUserProfile(userId);
+            if (!userProfile) {
+                showModal('Could not load user profile.');
+                return;
+            }
+            document.getElementById('profile-username').textContent = userProfile.username;
+            if (userProfile.photoURL) {
+                document.getElementById('profile-photo').src = userProfile.photoURL;
+            }
+
+            // Listen for user's own posts
+            const myPostsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
+            const q = query(myPostsColRef, where("authorId", "==", userId));
+            onSnapshot(q, (snapshot) => {
+                const myPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const sortedMyPosts = myPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                renderPosts(sortedMyPosts, document.getElementById('my-posts-container'), 'no-my-posts-msg');
+            });
+        };
+
+        // Photo upload functionality
+        document.getElementById('upload-photo-btn').addEventListener('click', () => {
+            document.getElementById('upload-photo-modal-content').classList.remove('hidden');
+        });
+
+        document.getElementById('save-photo-btn').addEventListener('click', async () => {
+            const photoUrl = document.getElementById('photo-url-input').value;
+            if (!photoUrl) {
+                showModal('Please enter a valid URL.');
+                return;
+            }
+            try {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/data/profile`);
+                await updateDoc(userDocRef, { photoURL: photoUrl });
+                document.getElementById('profile-photo').src = photoUrl;
+                document.getElementById('upload-photo-modal-content').classList.add('hidden');
+                showModal('Profile picture updated successfully!');
+            } catch (error) {
+                console.error("Error updating profile picture:", error);
+                showModal('Failed to update profile picture.');
+            }
+        });
+
+        // Initial setup
+        initFirebase();
+    </script>
+</body>
+</html>
