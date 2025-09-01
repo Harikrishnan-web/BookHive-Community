@@ -102,7 +102,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <h1 class="text-4xl font-bold tracking-tight text-white">BookHive</h1>
             <nav id="main-nav" class="space-x-4 flex items-center hidden">
-                <button id="home-nav" class="text-white hover:text-gray-300 transition-colors">Home</button>
+                <a href="home.html" class="text-white hover:text-gray-300 transition-colors">Home</a>
                 <button id="blog-nav" class="text-white hover:text-gray-300 transition-colors">Blog</button>
                 <button id="profile-nav" class="text-white hover:text-gray-300 transition-colors">Profile</button>
                 <button id="logout-nav" class="text-white hover:text-gray-300 transition-colors">Logout</button>
@@ -178,7 +178,7 @@
     </main>
 
     <footer class="footer p-4 text-center mt-auto">
-        <p class="text-sm">&copy; A webpage Made and created by Harikrishnan </p>
+        <p class="text-sm">&copy; A webpage Made and created by Harikrishnan from RIT</p>
     </footer>
 
     <!-- Modal for general messages -->
@@ -193,12 +193,20 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, onSnapshot, collection, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, onSnapshot, collection, query, where, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global variables provided by the canvas environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // IMPORTANT: Replace with your own Firebase configuration from your Firebase Console.
+        // Get this by going to your Project Settings > Your apps, then select the web app.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // You can leave the initialAuthToken variable as an empty string.
+        const initialAuthToken = "";
 
         // --- Firebase Initialization & Globals ---
         let app, db, auth, userId;
@@ -235,26 +243,24 @@
         };
 
         const getOrCreateUserProfile = async (uid) => {
-            const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/data/profile`);
+            const userDocRef = doc(db, `users/${uid}`);
             const userDoc = await getDoc(userDocRef);
             if (userDoc.exists()) {
-                // Profile exists, use it
                 return userDoc.data();
             } else {
-                // Profile does not exist, create a new one
                 const newProfile = {
                     username: localStorage.getItem('signup-username') || 'Anonymous User',
                     photoURL: '',
                     createdAt: new Date().toISOString()
                 };
                 await setDoc(userDocRef, newProfile);
-                localStorage.removeItem('signup-username'); // Clean up temporary storage
+                localStorage.removeItem('signup-username'); 
                 return newProfile;
             }
         };
 
         const getUserProfile = async (uid) => {
-            const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/data/profile`);
+            const userDocRef = doc(db, `users/${uid}`);
             const userDoc = await getDoc(userDocRef);
             return userDoc.exists() ? userDoc.data() : null;
         };
@@ -311,14 +317,12 @@
             const email = `${username}@bookhive.com`; // Unique email for Firebase Auth
 
             try {
-                const q = query(collection(db, `artifacts/${appId}/users`), where("username", "==", username));
+                const q = query(collection(db, `users`), where("username", "==", username));
                 const querySnapshot = await getDocs(q);
                 if (!querySnapshot.empty) {
                     showModal('Username already exists. Please choose another.');
                     return;
                 }
-
-                // Temporary storage for username to be used after creation
                 localStorage.setItem('signup-username', username);
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 showModal('Account created successfully! You are now logged in.');
@@ -344,21 +348,11 @@
         });
 
         // --- Post Handling & Filtering ---
-        const isEnglish = (text) => {
-            const latinCharCount = (text.match(/[A-Za-z]/g) || []).length;
-            const totalCharCount = text.length;
-            // Check if at least 70% of the characters are Latin alphabet letters
-            return (latinCharCount / totalCharCount) > 0.7;
-        };
-
         const checkContent = (text) => {
             const lowerText = text.toLowerCase();
             const hasBadWords = badWords.some(word => lowerText.includes(word));
             if (hasBadWords) {
                 return { isValid: false, message: 'Your post contains unhealthy content. Please revise it.' };
-            }
-            if (!isEnglish(text)) {
-                return { isValid: false, message: 'Your post must be in English. Please revise it.' };
             }
             return { isValid: true };
         };
@@ -386,11 +380,33 @@
             }
 
             try {
-                const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
+                const llm_payload = {
+                    contents: [{
+                        parts: [{
+                            text: `Rephrase this text to be unique and original, but keep the core meaning and tone. Ensure the output is in English only. Title: ${title}. Content: ${content}`
+                        }]
+                    }]
+                };
+                const llm_api_url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${firebaseConfig.apiKey}`;
+                
+                const response = await fetch(llm_api_url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(llm_payload)
+                });
+                
+                const result = await response.json();
+                if (!result.candidates || !result.candidates[0] || !result.candidates[0].content || !result.candidates[0].content.parts[0]) {
+                    showModal('Failed to rephrase content. Please try again.');
+                    return;
+                }
+                const rephrasedContent = result.candidates[0].content.parts[0].text;
+
+                const postsColRef = collection(db, `public/data/posts`);
 
                 const newPost = {
                     title: title,
-                    content: content,
+                    content: rephrasedContent,
                     authorId: userId,
                     authorName: userProfile.username,
                     createdAt: new Date().toISOString(),
@@ -412,10 +428,9 @@
         // --- Home Page Rendering ---
         const setupHomeListeners = () => {
             if (!db) return;
-            const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
+            const postsColRef = collection(db, `public/data/posts`);
             onSnapshot(postsColRef, (snapshot) => {
                 const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Sort by creation date for "top" posts
                 const sortedPosts = posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 renderPosts(sortedPosts, document.getElementById('posts-container'), 'no-posts-msg');
             });
@@ -456,7 +471,7 @@
             document.querySelectorAll('.like-btn').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const postId = e.currentTarget.dataset.postId;
-                    const postDocRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                    const postDocRef = doc(db, `public/data/posts`, postId);
                     try {
                         const postDoc = await getDoc(postDocRef);
                         if (postDoc.exists()) {
@@ -483,7 +498,7 @@
             }
 
             // Listen for user's own posts
-            const myPostsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
+            const myPostsColRef = collection(db, `public/data/posts`);
             const q = query(myPostsColRef, where("authorId", "==", userId));
             onSnapshot(q, (snapshot) => {
                 const myPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -504,7 +519,7 @@
                 return;
             }
             try {
-                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/data/profile`);
+                const userDocRef = doc(db, `users/${userId}`);
                 await updateDoc(userDocRef, { photoURL: photoUrl });
                 document.getElementById('profile-photo').src = photoUrl;
                 document.getElementById('upload-photo-modal-content').classList.add('hidden');
